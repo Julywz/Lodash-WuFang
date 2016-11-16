@@ -74,6 +74,20 @@ var WuFang = {
     return arguments[0]
   },
   difference: function() {
-
-  }
+    var compare = []
+    for (var i = 1; i < arguments.length; i++) {
+      for (var j = 0; j < arguments[i].length; j++) {
+        compare.push(arguments[i][j])
+      }
+    }
+    for (var k = 0; k < arguments[0].length; k++) {
+      for (var l = 0; l < compare.length; l++) {
+        if (arguments[0][k] == compare[l]) {
+          arguments[0].shift()
+        }
+      }
+    }
+    return arguments[0]
+  },
 }
+console.log(WuFang.difference([2, 1, 9, 8, 7], [2, 3], [1, 4, 5]))
