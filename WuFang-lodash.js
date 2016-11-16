@@ -89,5 +89,74 @@ var WuFang = {
     }
     return arguments[0]
   },
+  drop: function(arr, n) {
+    if (n == undefined) {
+      n = 1
+    }
+    for (var i = 0; i < n; i++) {
+      arr.shift()
+    }
+    return arr
+  },
+  dropRight: function(arr, n) {
+    var result = []
+    if (n == undefined) {
+      n = 1
+    }
+    for (var i = 0; i < n; i++) {
+      arr[arr.length - 1 - i] = " "
+    }
+    for (var j = 0; j < arr.length; j++) {
+      if (arr[j] != " ") {
+        result.push(arr[j])
+      }
+    }
+    return result
+  },
+  fill: function(arr, value, start, end) {
+    if (start == undefined) {
+      start = 0
+    }
+    if (end == undefined) {
+      end = arr.length
+    }
+    for (var i = start; i < end; i++) {
+      arr[i] = value
+    }
+    return arr
+  },
+  flatten: function(arr) {
+    var result = []
+    for (var i = 0; i < arr.length; i++) {
+      if ((typeof arr[i]) == "number") {
+        result.push(arr[i])
+      } else {
+        for (var j = 0; j < arr[i].length; j++) {
+          result.push(arr[i][j])
+        }
+      }
+    }
+    return result
+  },
+  flattenDeep: function(arr) {
+    var result = []
+    for (var i = 0; i < arr.length; i++) {
+      if (!(Array.isArray(arr[i]))) {
+        result.push(arr[i])
+      } else {
+        for (var j = 0; j < arr[i].length; j++) {
+          result.push(arr[i][j])
+        }
+      }
+    }
+    for (var k = 0; k < result.length; k++) {
+      if (!(Array.isArray(result[k]))) {
+        continue
+      } else {
+        this.flattenDeep(result)
+      }
+    }
+    return result
+  },
 }
-console.log(WuFang.difference([2, 1, 9, 8, 7], [2, 3], [1, 4, 5]))
+console.log(WuFang.flattenDeep([1, [2, [3, [4]], 5]]))
