@@ -368,6 +368,13 @@ var WuFang = {
     }
     return arr
   },
+  /**
+   * 将n个数组连接成一个数组，但不能有重复的元素
+   * n个数组
+   * 返回连接后的数组，每次取得实参的值后，用函数判断，新连接的数组中是否已经有这个值了，
+   * 如果有，就跳过；没有，就push进新的数组中
+   * 例如([2], [1, 2])返回[1, 2]
+   */
   union: function() {
     var ret = []
     for (var i = 0; i < arguments.length; i++) {
@@ -390,6 +397,12 @@ var WuFang = {
       return true
     }
   },
+  /**
+   * 将数组复制一份，但是要删除掉数组中重复的元素
+   * 数组
+   * 返回复制的没有重复值的数组，和上一个做法一样
+   * 例如([2, 1, 2])返回[2, 1]
+   */
   uniq: function(arr) {
     var ret = []
     for (var i = 0; i < arr.length; i++) {
@@ -411,17 +424,14 @@ var WuFang = {
     }
   },
   unzip: function() {
-    var ret = []
-    var result = []
-    for (var i = 0; i < arguments[0].length; i++) {
-      ret = []
-      for (var j = 0; j < arguments.length; j++) {
-        ret.push(arguments[j][i])
-      }
-      result.push(ret)
+
     }
-    return result
-  },
+    /**
+     * 删除数组中的和value值相等的元素
+     * 一个要修改的数组，n个数值
+     * 返回修改过的数组，每次取得数组的某一项，在value中遍历，如果有相等的，就不要了；如果没有相等的，就push进要返回的数组
+     * 例如([2, 1, 2, 3], 1, 2)返回[3]
+     */
   without: function(arr, value) {
     var ret = []
     var flag = true
@@ -439,6 +449,59 @@ var WuFang = {
     }
     return ret
   },
+  /**
+   * n个数组中唯一出现的值重新组成一个数组
+   * n个数组
+   * 返回重新组合成的数组，将实参都连接成一个数组，遍历数组，如果某个元素只出现一次，则将其push进新的数组
+   * 就push进要返回的数组
+   * 例如([2, 1], [3, 2]))返回[1， 3]
+   */
+  xor: function() {
+    var ret = []
+    var comp = []
+    for (var i = 0; i < arguments.length; i++) {
+      for (var j = 0; j < arguments[i].length; j++) {
+        comp.push(arguments[i][j])
+      }
+    }
+    for (var k = 0; k < comp.length; k++) {
+      if (judge(comp[k], comp) == 1) {
+        ret.push(comp[k])
+      } else {
+        continue
+      }
+    }
+    return ret
+
+    function judge(value, arr) {
+      var counter = 0
+      for (var k = 0; k < arr.length; k++) {
+        if (value == arr[k]) {
+          counter++
+        }
+      }
+      return counter
+    }
+  },
+  /**
+   * 将n个数组分解，每个数组的第一项组成一个新的数组的第一项，以此类推
+   * n个数组
+   * 返回重新组合的数组，每次取得所有数组的第一项，push进一个新的数组，所有实参遍历一遍之后，
+   * 将新的数组push进要返回的数组中，以此类推
+   * 例如(['a', 'b'], [1, 2], [true, false])返回[['a', 1, true], ['b', 2, false]]
+   */
+  zip: function() {
+    var ret = []
+    var result = []
+    for (var i = 0; i < arguments[0].length; i++) {
+      ret = []
+      for (var j = 0; j < arguments.length; j++) {
+        ret.push(arguments[j][i])
+      }
+      result.push(ret)
+    }
+    return result
+  },
 
 }
 
@@ -447,4 +510,4 @@ var WuFang = {
 // var array = ['a', 'b', 'c', 'd'];
 // console.log(WuFang.pullAt(array, [0, 3]))
 // console.log(WuFang.())
-console.log(WuFang.unzip(['a', 'b'], [1, 2], [true, false]))
+console.log(WuFang.zip(['a', 'b'], [1, 2], [true, false]))
