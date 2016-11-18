@@ -209,10 +209,13 @@ var WuFang = {
     }
     return ret
   },
-  // join: function(arr, separator) {
-  //   var str = ""
-  //   for (var)
-  // },
+  join: function(arr, separator) {
+    var str = ""
+    for (var i = 0; i < arr.length - 1; i++) {
+      str += arr[i] + separator
+    }
+    return str + arr[arr.length - 1]
+  },
   /**
    * 取出各数组中全等的元素
    * 参数就是需要检查的数组，个数不定
@@ -339,6 +342,9 @@ var WuFang = {
   },
   head: function(arr) {
     return arr[0]
+  },
+  last: function(arr) {
+    return arr[arr.length - 1]
   },
   /**
    * 删除数组的第一项
@@ -501,6 +507,16 @@ var WuFang = {
       }
     }
   },
+  lastIndexOf: function(arr, value, index) {
+    if (index == undefined) {
+      index = arr.length
+    }
+    for (var i = index; i >= 0; i--) {
+      if (arr[i] == value) {
+        return i
+      }
+    }
+  },
   /**
    * 将n个数组分解，每个数组的第一项组成一个新的数组的第一项，以此类推
    * n个数组
@@ -652,14 +668,255 @@ var WuFang = {
 
     return result
   },
+  nth: function(arr, value) {
+    if (value < 0) {
+      return arr[arr.length - Math.abs(value)]
+    }
+    return arr[value]
+  },
+  sortedIndex: function(arr, value) {
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] <= value && arr[i + 1] >= value) {
+        return i + 1
+      }
+    }
+  },
+
+  cameCase: function(str) {
+    var str1 = ""
+    for (var i = 0; i < str.length; i++) {
+      if (letter(str[i])) {
+        if (!letter(str[i - 1])) {
+          str1 += str[i].toUpperCase()
+        } else {
+          str1 += str[i].toLowerCase()
+        }
+      }
+    }
+    var finalStr = str1[0].toLowerCase()
+    for (var i = 1; i < str1.length; i++) {
+      finalStr += str1[i]
+    }
+
+    function letter(char) {
+      if (char == undefined) {
+        return false
+      }
+      if ((char.charCodeAt() >= 65 && char.charCodeAt() <= 90) || (char.charCodeAt() >= 97 && char.charCodeAt() <= 122)) {
+        return true
+      } else {
+        return false
+      }
+    }
+    return finalStr
+  },
+  capitalize: function(str) {
+    var retStr = str[0].toUpperCase()
+    for (var i = 1; i < str.length; i++) {
+      retStr += str[i].toLowerCase()
+    }
+    return retStr
+  },
+  endsWith: function(str, target, position) {
+    if (position == undefined) {
+      position = str.length
+    }
+    if (str[position - 1] == target) {
+      return true
+    } else {
+      return false
+    }
+  },
+  escape: function(str) {
+    var retStr = ""
+    for (var i = 0; i < str.length; i++) {
+      retStr += characterEscape(str[i])
+    }
+
+    function characterEscape(char) {
+      switch (char) {
+        case "&":
+          return "&amp;"
+        case ">":
+          return "&gt;"
+        case "<":
+          return "&lt;"
+        case "'":
+          return "&apos;"
+        case '"':
+          return "&quot;"
+        case '`':
+          return "&lsquo;"
+      }
+      return char
+    }
+    return retStr
+  },
+  escapeRegExp: function(str) {
+    var retStr = ""
+    for (var i = 0; i < str.length; i++) {
+      if (characterEscape(str[i]) == "\\") {
+        retStr += characterEscape(str[i])
+      }
+      retStr += str[i]
+    }
+
+    function characterEscape(char) {
+      switch (char) {
+        case "^":
+        case "$":
+        case "":
+        case ".":
+        case "*":
+        case "+":
+        case "?":
+        case "(":
+        case ")":
+        case "[":
+        case "]":
+        case "{":
+        case "}":
+        case "|":
+          return '\\'
+      }
+      return char
+    }
+    return retStr
+  },
+  kebabCase: function(str) {
+    var newStr = ""
+    for (var i = 0; i < str.length; i++) {
+      if (letter(str[i])) {
+        if (!letter(str[i - 1])) {
+          newStr += "-" + str[i].toLowerCase()
+        } else {
+          newStr += str[i].toLowerCase()
+        }
+      }
+    }
+    var finalStr = ""
+    for (var i = 1; i < newStr.length; i++) {
+      finalStr += newStr[i]
+    }
+
+    function letter(char) {
+      if (char == undefined) {
+        return false
+      }
+      if ((char.charCodeAt() >= 65 && char.charCodeAt() <= 90) || (char.charCodeAt() >= 97 && char.charCodeAt() <= 122)) {
+        return true
+      } else {
+        return false
+      }
+    }
+    return finalStr
+  },
+  lowerCase: function(str) {
+    var newStr = ""
+    for (var i = 0; i < str.length; i++) {
+      if (letter(str[i])) {
+        if (!letter(str[i - 1]) || isUpperCase(str[i])) {
+          newStr += " " + str[i].toLowerCase()
+        } else {
+          newStr += str[i].toLowerCase()
+        }
+      }
+    }
+    var finalStr = ""
+    for (var i = 1; i < newStr.length; i++) {
+      finalStr += newStr[i]
+    }
+
+    function letter(char) {
+      if (char == undefined) {
+        return false
+      }
+      if ((char.charCodeAt() >= 65 && char.charCodeAt() <= 90) || (char.charCodeAt() >= 97 && char.charCodeAt() <= 122)) {
+        return true
+      } else {
+        return false
+      }
+    }
+
+    function isUpperCase(char) {
+      if (char.charCodeAt() >= 65 && char.charCodeAt() <= 90) {
+        return true
+      }
+      return false
+    }
+    return finalStr
+  },
+  lowerFirst: function(str) {
+    var retStr = str[0].toLowerCase()
+    for (var i = 1; i < str.length; i++) {
+      retStr += str[i]
+    }
+    return retStr
+  },
+  pad: function(str, len, char) {
+    if (str.length == len) {
+      return str
+    } else {
+      var finalStr = ""
+      if (char == undefined) {
+        char = " "
+      }
+      for (var i = 0; i < parseInt((len - str.length) / 2); i++) {
+        finalStr += char[i % char.length]
+      }
+      for (var j = 0; j < str.length; j++) {
+        finalStr += str[j]
+      }
+      for (var k = 0; k < Math.ceil((len - str.length) / 2); k++) {
+        finalStr += char[k % char.length]
+      }
+    }
+    return finalStr
+  },
+  padEnd: function(str, len, char) {
+    if (str.length == len) {
+      return str
+    } else {
+      var finalStr = ""
+      if (char == undefined) {
+        char = " "
+      }
+      for (var j = 0; j < str.length; j++) {
+        finalStr += str[j]
+      }
+      for (var k = 0; k < len - str.length; k++) {
+        finalStr += char[k % char.length]
+      }
+    }
+    return finalStr
+  },
+  padStart: function(str, len, char) {
+    if (str.length == len) {
+      return str
+    } else {
+      var finalStr = ""
+      if (char == undefined) {
+        char = " "
+      }
+      for (var k = 0; k < len - str.length; k++) {
+        finalStr += char[k % char.length]
+      }
+      for (var j = 0; j < str.length; j++) {
+        finalStr += str[j]
+      }
+    }
+    return finalStr
+  },
+  // parseInt: function(str, value) {
+  // if ((value == undefined || value == 0) && (str[0] != "0" && str[1] != "x")) {
+  //   value = 10
+  // }
+  // if (str[0] == "0" && str[1] == "x") {
+  //   value = 16
+  // }
+  //   return Number(str)
+  // },
+
 }
 
-
-// console.log(WuFang.intersection([1, 2], [4, 2], [2, 1]))
-// var array = ['a', 'b', 'c', 'd'];
-// console.log(WuFang.pullAt(array, [0, 3]))
-// console.log(WuFang.())
-function sum(sum, n) {
-  return sum + n;
-}
-console.log(WuFang.reduce([1, 2, 3, 4, 5], sum))
+// console.log(WuFang.parseInt('001001'))
