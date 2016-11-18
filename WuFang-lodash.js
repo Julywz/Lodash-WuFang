@@ -499,7 +499,36 @@ var WuFang = {
     }
     return result
   },
-
+  map: function(array, f) {
+    var result = []
+    for (var i = 0; i < array.length; i++) {
+      result.push(f(array[i], i, array))
+    }
+    return result
+  },
+  filter: function(users, f) {
+    var result = []
+    for (var i = 0; i < users.length; i++) {
+      if (f(users[i], i, users)) {
+        result.push(users[i])
+      }
+    }
+    return result
+  },
+  partition: function(users, f) {
+    var result = [
+      [],
+      []
+    ]
+    for (var i = 0; i < users.length; i++) {
+      if (f(users[i], i, users)) {
+        result[0].push(users[i])
+      } else {
+        result[1].push(users[i])
+      }
+    }
+    return result
+  },
 }
 
 
@@ -507,4 +536,19 @@ var WuFang = {
 // var array = ['a', 'b', 'c', 'd'];
 // console.log(WuFang.pullAt(array, [0, 3]))
 // console.log(WuFang.())
-console.log(WuFang.zip(['a', 'b'], [1, 2], [true, false]))
+var users = [{
+  'user': 'barney',
+  'age': 36,
+  'active': false
+}, {
+  'user': 'fred',
+  'age': 40,
+  'active': true
+}, {
+  'user': 'pebbles',
+  'age': 1,
+  'active': false
+}];
+console.log(WuFang.partition(users, function(o) {
+  return o.active;
+}))
