@@ -209,6 +209,10 @@ var WuFang = {
     }
     return ret
   },
+  // join: function(arr, separator) {
+  //   var str = ""
+  //   for (var)
+  // },
   /**
    * 取出各数组中全等的元素
    * 参数就是需要检查的数组，个数不定
@@ -277,28 +281,21 @@ var WuFang = {
    * 返回包含删除的元素的数组
    * 例如(['a', 'b', 'c', 'd'],[0, 3])返回['a', 'd']
    */
-  pullAt: function(arr) {
-    var comp = []
+  pullAt: function(arr, index) {
     var result = []
-    for (var i = 1; i < arguments.length; i++) {
-      for (var j = 0; j < arguments[i].length; j++) {
-        comp.push(arguments[i][j])
-      }
-    }
-
-    for (var k = 0; k < arr.length; k++) {
-      for (var l = 0; l < comp.length; l++) {
-        if (k == comp[l]) {
-          result.push(arr[k])
-          break
+    for (var i = 0; i < arr.length; i++) {
+      for (var j = 0; j < index.length; j++) {
+        if (i == index[j]) {
+          result.push(arr[i])
+          continue
         }
       }
     }
-    for (var k = 0; k < arr.length; k++) {
-      for (var l = 0; l < comp.length; l++) {
-        if (k == comp[l]) {
-          arr.splice(k, 1)
-          break
+    for (var i = 0; i < arr.length; i++) {
+      for (var j = 0; j < index.length; j++) {
+        if (i == index[j]) {
+          arr.splice(i, 1)
+          continue
         }
       }
     }
@@ -339,6 +336,9 @@ var WuFang = {
       }
     }
     return result
+  },
+  head: function(arr) {
+    return arr[0]
   },
   /**
    * 删除数组的第一项
@@ -484,6 +484,23 @@ var WuFang = {
       return counter
     }
   },
+  indexOf: function(arr, value, index) {
+    if (index < 0) {
+      for (var i = arr.length - 1; i > 0; i--) {
+        if (arr[i] == value) {
+          return i
+        }
+      }
+    }
+    if (index == undefined) {
+      index = 1
+    }
+    for (var i = index; i < arr.length; i++) {
+      if (arr[i] == value) {
+        return i
+      }
+    }
+  },
   /**
    * 将n个数组分解，每个数组的第一项组成一个新的数组的第一项，以此类推
    * n个数组
@@ -551,6 +568,22 @@ var WuFang = {
     return result
   },
   /**
+   * 将数组每一项传入函数，若函数返回假，则将该数组的这一项存入新的数组；否则不要
+   * 要检验的数组，及断言函数
+   * 返回检验后的数组
+   * 例如传入var users = [{ 'user': 'barney', 'age': 36, 'active': true },{ 'user': 'fred',   'age': 40, 'active': false }];
+   * 返回[{ 'user': 'fred',   'age': 40, 'active': false }]，前提是函数是按照'active'的值来判断真假
+   */
+  reject: function(users, f) {
+    var result = []
+    for (var i = 0; i < users.length; i++) {
+      if (!f(users[i], i, users)) {
+        result.push(users[i])
+      }
+    }
+    return result
+  },
+  /**
    * 将数组每一项传入函数，若函数返回真，则将该数组的这一项存入新的数组的第一项；否则存入新数组的第二项
    * 要检验的数组，及断言函数
    * 返回检验后的数组
@@ -579,7 +612,35 @@ var WuFang = {
     }
     return result
   },
-
+  every: function(users, f) {
+    for (var i = 0; i < users.length; i++) {
+      if (f(users[i], i, users)) {
+        continue
+      } else {
+        return false
+      }
+    }
+    return true
+  },
+  some: function(users, f) {
+    for (var i = 0; i < users.length; i++) {
+      if (f(users[i], i, users)) {
+        return true
+      } else {
+        continue
+      }
+    }
+    return false
+  },
+  reduce: function(arr, fn, value) {
+    var a = arr.length
+    var result = value
+    for (var i = 0; i < a; i++) {
+      result = fn(result, arr[0])
+      arr.splice(0, 1)
+    }
+    return result
+  },
 }
 
 
@@ -587,5 +648,7 @@ var WuFang = {
 // var array = ['a', 'b', 'c', 'd'];
 // console.log(WuFang.pullAt(array, [0, 3]))
 // console.log(WuFang.())
-
-// console.log(WuFang.intersection([2, 1], [4, 2], [1, 2]))
+function sum(sum, n) {
+  return sum + n;
+}
+console.log(WuFang.reduce([1, 2, 3, 4, 5], sum, 0))
