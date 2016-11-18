@@ -681,35 +681,6 @@ var WuFang = {
       }
     }
   },
-
-  camelCase: function(str) {
-    var str1 = ""
-    for (var i = 0; i < str.length; i++) {
-      if (letter(str[i])) {
-        if (!letter(str[i - 1])) {
-          str1 += str[i].toUpperCase()
-        } else {
-          str1 += str[i].toLowerCase()
-        }
-      }
-    }
-    var finalStr = str1[0].toLowerCase()
-    for (var i = 1; i < str1.length; i++) {
-      finalStr += str1[i]
-    }
-
-    function letter(char) {
-      if (char == undefined) {
-        return false
-      }
-      if ((char.charCodeAt() >= 65 && char.charCodeAt() <= 90) || (char.charCodeAt() >= 97 && char.charCodeAt() <= 122)) {
-        return true
-      } else {
-        return false
-      }
-    }
-    return finalStr
-  },
   capitalize: function(str) {
     var retStr = str[0].toUpperCase()
     for (var i = 1; i < str.length; i++) {
@@ -783,11 +754,46 @@ var WuFang = {
     }
     return retStr
   },
+
+  letter: function(char) {
+    if (char == undefined) {
+      return false
+    }
+    if ((char.charCodeAt() >= 65 && char.charCodeAt() <= 90) || (char.charCodeAt() >= 97 && char.charCodeAt() <= 122)) {
+      return true
+    } else {
+      return false
+    }
+  },
+
+  isUpperCase: function(char) {
+    if (char.charCodeAt() >= 65 && char.charCodeAt() <= 90) {
+      return true
+    }
+    return false
+  },
+  camelCase: function(str) {
+    var str1 = ""
+    for (var i = 0; i < str.length; i++) {
+      if (this.letter(str[i])) {
+        if (!this.letter(str[i - 1])) {
+          str1 += str[i].toUpperCase()
+        } else {
+          str1 += str[i].toLowerCase()
+        }
+      }
+    }
+    var finalStr = str1[0].toLowerCase()
+    for (var i = 1; i < str1.length; i++) {
+      finalStr += str1[i]
+    }
+    return finalStr
+  },
   kebabCase: function(str) {
     var newStr = ""
     for (var i = 0; i < str.length; i++) {
-      if (letter(str[i])) {
-        if (!letter(str[i - 1]) || isUpperCase(str[i])) {
+      if (this.letter(str[i])) {
+        if (!this.letter(str[i - 1]) || (this.isUpperCase(str[i]) && (!this.isUpperCase(str[i - 1]) && !(this.isUpperCase(str[i + 1]))))) {
           newStr += "-" + str[i].toLowerCase()
         } else {
           newStr += str[i].toLowerCase()
@@ -798,31 +804,13 @@ var WuFang = {
     for (var i = 1; i < newStr.length; i++) {
       finalStr += newStr[i]
     }
-
-    function letter(char) {
-      if (char == undefined) {
-        return false
-      }
-      if ((char.charCodeAt() >= 65 && char.charCodeAt() <= 90) || (char.charCodeAt() >= 97 && char.charCodeAt() <= 122)) {
-        return true
-      } else {
-        return false
-      }
-    }
-
-    function isUpperCase(char) {
-      if (char.charCodeAt() >= 65 && char.charCodeAt() <= 90) {
-        return true
-      }
-      return false
-    }
     return finalStr
   },
   lowerCase: function(str) {
     var newStr = ""
     for (var i = 0; i < str.length; i++) {
-      if (letter(str[i])) {
-        if (!letter(str[i - 1]) || (isUpperCase(str[i]) && (!isUpperCase(str[i - 1]) && !(isUpperCase(str[i + 1]))))) {
+      if (this.letter(str[i])) {
+        if (!this.letter(str[i - 1]) || (this.isUpperCase(str[i]) && (!this.isUpperCase(str[i - 1]) && !(this.isUpperCase(str[i + 1]))))) {
           newStr += " " + str[i].toLowerCase()
         } else {
           newStr += str[i].toLowerCase()
@@ -833,28 +821,49 @@ var WuFang = {
     for (var i = 1; i < newStr.length; i++) {
       finalStr += newStr[i]
     }
-
-    function letter(char) {
-      if (char == undefined) {
-        return false
-      }
-      if ((char.charCodeAt() >= 65 && char.charCodeAt() <= 90) || (char.charCodeAt() >= 97 && char.charCodeAt() <= 122)) {
-        return true
-      } else {
-        return false
+    return finalStr
+  },
+  snakeCase: function(str) {
+    var newStr = ""
+    for (var i = 0; i < str.length; i++) {
+      if (this.letter(str[i])) {
+        if (!this.letter(str[i - 1]) || (this.isUpperCase(str[i]) && (!this.isUpperCase(str[i - 1]) && !(this.isUpperCase(str[i + 1]))))) {
+          newStr += "_" + str[i].toLowerCase()
+        } else {
+          newStr += str[i].toLowerCase()
+        }
       }
     }
-
-    function isUpperCase(char) {
-      if (char == undefined) {
-        return false
-      }
-      if (char.charCodeAt() >= 65 && char.charCodeAt() <= 90) {
-        return true
-      }
-      return false
+    var finalStr = ""
+    for (var i = 1; i < newStr.length; i++) {
+      finalStr += newStr[i]
     }
     return finalStr
+  },
+  startCase: function(str) {
+    var newStr = ""
+    for (var i = 0; i < str.length; i++) {
+      if (this.letter(str[i])) {
+        if (!this.letter(str[i - 1]) || (this.isUpperCase(str[i]) && (!this.isUpperCase(str[i - 1]) && !(this.isUpperCase(str[i + 1]))))) {
+          newStr += " " + str[i]
+        } else {
+          newStr += str[i]
+        }
+      }
+    }
+    var finalStr = "" + newStr[1].toUpperCase()
+    for (var i = 2; i < newStr.length; i++) {
+      if (newStr[i] == " ") {
+        finalStr += newStr[i]
+        finalStr += newStr[i + 1].toUpperCase()
+        i++
+      } else {
+        finalStr += newStr[i]
+      }
+
+    }
+    return finalStr
+
   },
   lowerFirst: function(str) {
     var retStr = str[0].toLowerCase()
@@ -926,7 +935,59 @@ var WuFang = {
   // }
   //   return Number(str)
   // },
+  repeat: function(str, value) {
+    var retStr = ""
+    for (var i = 0; i < value; i++) {
+      retStr += str
+    }
+    return retStr
+  },
+  replace: function(str, patter, replacement) {
+    var arr = str.split(" ")
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] == patter) {
+        arr[i] = replacement
+      }
+    }
+    return arr.join(" ")
+  },
+  split: function(str, separator, limit) {
+    var arr = []
+    for (var i = 0; i < str.length; i++) {
+      if (str[i] == separator) {
+        arr.push(str[i - 1])
+      }
+      if (arr.length == limit) {
+        break
+      }
+    }
+    return arr
+  },
+  at: function(obj, arr) {
+    var ret = []
+    var str = ""
+    var str1 = ""
+    for (var i = 0; i < arr.length - 1; i++) {
+      str = arr[i].split(".")
+      str1 = str[0][0]
+
+
+
+      console.log(object[str1][i][str[1][2]])
+    }
+
+    return ret
+  },
 
 }
-
-console.log(WuFang.lowerCase('__FOO_BAR__'))
+var object = {
+  'a': [{
+    'b': {
+      'c': 3
+    }
+  }, 4]
+};
+// console.log(object['a'][0]['b']['c'])
+console.log(WuFang.at(object, ['a[0].b.c', 'a[1]']))
+  // console.log(WuFang.startCase('--foo-bar--'))
+  // console.log(WuFang.startCase('__FOO_BAR__'))
