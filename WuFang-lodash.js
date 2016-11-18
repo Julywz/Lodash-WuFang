@@ -536,19 +536,3 @@ var WuFang = {
 // var array = ['a', 'b', 'c', 'd'];
 // console.log(WuFang.pullAt(array, [0, 3]))
 // console.log(WuFang.())
-var users = [{
-  'user': 'barney',
-  'age': 36,
-  'active': false
-}, {
-  'user': 'fred',
-  'age': 40,
-  'active': true
-}, {
-  'user': 'pebbles',
-  'age': 1,
-  'active': false
-}];
-console.log(WuFang.partition(users, function(o) {
-  return o.active;
-}))
