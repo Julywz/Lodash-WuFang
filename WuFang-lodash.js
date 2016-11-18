@@ -682,7 +682,7 @@ var WuFang = {
     }
   },
 
-  cameCase: function(str) {
+  camelCase: function(str) {
     var str1 = ""
     for (var i = 0; i < str.length; i++) {
       if (letter(str[i])) {
@@ -787,7 +787,7 @@ var WuFang = {
     var newStr = ""
     for (var i = 0; i < str.length; i++) {
       if (letter(str[i])) {
-        if (!letter(str[i - 1])) {
+        if (!letter(str[i - 1]) || isUpperCase(str[i])) {
           newStr += "-" + str[i].toLowerCase()
         } else {
           newStr += str[i].toLowerCase()
@@ -809,13 +809,20 @@ var WuFang = {
         return false
       }
     }
+
+    function isUpperCase(char) {
+      if (char.charCodeAt() >= 65 && char.charCodeAt() <= 90) {
+        return true
+      }
+      return false
+    }
     return finalStr
   },
   lowerCase: function(str) {
     var newStr = ""
     for (var i = 0; i < str.length; i++) {
       if (letter(str[i])) {
-        if (!letter(str[i - 1]) || isUpperCase(str[i])) {
+        if (!letter(str[i - 1]) || (isUpperCase(str[i]) && (!isUpperCase(str[i - 1]) && !(isUpperCase(str[i + 1]))))) {
           newStr += " " + str[i].toLowerCase()
         } else {
           newStr += str[i].toLowerCase()
@@ -839,6 +846,9 @@ var WuFang = {
     }
 
     function isUpperCase(char) {
+      if (char == undefined) {
+        return false
+      }
       if (char.charCodeAt() >= 65 && char.charCodeAt() <= 90) {
         return true
       }
@@ -919,4 +929,4 @@ var WuFang = {
 
 }
 
-// console.log(WuFang.parseInt('001001'))
+console.log(WuFang.lowerCase('__FOO_BAR__'))
