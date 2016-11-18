@@ -634,11 +634,22 @@ var WuFang = {
   },
   reduce: function(arr, fn, value) {
     var a = arr.length
-    var result = value
-    for (var i = 0; i < a; i++) {
-      result = fn(result, arr[0])
+    var result = 0
+    if (value == undefined) {
+      result = arr[0]
       arr.splice(0, 1)
+      for (var i = 0; i < a - 1; i++) {
+        result = fn(result, arr[0])
+        arr.splice(0, 1)
+      }
+    } else {
+      var result = value
+      for (var i = 0; i < a; i++) {
+        result = fn(result, arr[0])
+        arr.splice(0, 1)
+      }
     }
+
     return result
   },
 }
@@ -651,4 +662,4 @@ var WuFang = {
 function sum(sum, n) {
   return sum + n;
 }
-console.log(WuFang.reduce([1, 2, 3, 4, 5], sum, 0))
+console.log(WuFang.reduce([1, 2, 3, 4, 5], sum))
