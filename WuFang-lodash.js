@@ -209,6 +209,12 @@ var WuFang = {
     }
     return ret
   },
+  /**
+   * 将数组连接成字符串，且中间是以某个符号连接的
+   * 参数是要连接的数组，中间的符号
+   * 返回连接后的字符串
+   * 例如(['a', 'b', 'c'], '~')返回'a~b~c'
+   */
   join: function(arr, separator) {
     var str = ""
     for (var i = 0; i < arr.length - 1; i++) {
@@ -409,7 +415,7 @@ var WuFang = {
   },
   /**
    * 将数组复制一份，但是要删除掉数组中重复的元素
-   * 数组
+   * 参数是一个数组
    * 返回复制的没有重复值的数组，和上一个做法一样
    * 例如([2, 1, 2])返回[2, 1]
    */
@@ -461,7 +467,7 @@ var WuFang = {
    * n个数组
    * 返回重新组合成的数组，将实参都连接成一个数组，遍历数组，如果某个元素只出现一次，则将其push进新的数组
    * 就push进要返回的数组
-   * 例如([2, 1], [3, 2]))返回[1， 3]
+   * 例如([2, 1], [3, 2])返回[1，3]
    */
   xor: function() {
     var ret = []
@@ -490,6 +496,13 @@ var WuFang = {
       return counter
     }
   },
+  /**
+   * 返回value首次在数组array中被找到的索引值
+   * 数组，查询的值，索引值
+   * 在数组中从参数给的索引值开始查询，如果没给索引值，就从索引值为0开始查询。
+   * 查到与value值相同的值就返回其索引值,否则就返回-1
+   * 例如([1, 2, 1, 2], 2, 2)返回3
+   */
   indexOf: function(arr, value, index) {
     if (index < 0) {
       for (var i = arr.length - 1; i > 0; i--) {
@@ -499,14 +512,22 @@ var WuFang = {
       }
     }
     if (index == undefined) {
-      index = 1
+      index = 0
     }
     for (var i = index; i < arr.length; i++) {
       if (arr[i] == value) {
         return i
       }
     }
+    return -1
   },
+  /**
+   * 基本同上，只是从数组后面开始查询
+   * 数组，查询的值，索引值
+   * 在数组中从参数给的索引值开始查询，如果没给索引值，就从索引值为0开始查询。
+   * 查到与value值相同的值就返回其索引值，否则就返回-1
+   * 例如([1, 2, 1, 2], 2, 2)返回1
+   */
   lastIndexOf: function(arr, value, index) {
     if (index == undefined) {
       index = arr.length
@@ -516,6 +537,7 @@ var WuFang = {
         return i
       }
     }
+    return -1
   },
   /**
    * 将n个数组分解，每个数组的第一项组成一个新的数组的第一项，以此类推
@@ -555,47 +577,120 @@ var WuFang = {
     return result
   },
   /**
-   * 将数组的每一项按照传入的函数来映射，将映射的结果组成新的数组返回
-   * 要映射的数组，及函数
-   * 返回映射后的数组
+   * 将数组或对象的每一项按照传入的函数或对象属性来映射，将映射的结果组成新的数组返回
+   * 第一个参数要映射的数组或对象，第二个参数是函数或者字符串,如果没有给第二个参数传值，则第二个参数就改为返回第一个参数的函数
+   * 返回映射得到的新数组
    * 例如[[1, 2, 3]]返回[[1, 4, 9]],前提是传入的函数是function square(arr[i], i, arr) {return arr[i] * arr[i]}
    */
-  map: function(array, f) {
+  map: function(collection, iteratee) {
     var result = []
-    for (var i = 0; i < array.length; i++) {
-      result.push(f(array[i], i, array))
+    if (!iteratee) {
+      iterater = function(a) {
+        return a
+      }
+    } else if (typeof iteratee == "string") {
+      iterater = function(value, key, collection) {
+        return collection[key][iteratee]
+      }
+    } else {
+      iterater = iteratee
     }
-    return result
-  },
-  /**
-   * 将数组每一项传入函数，若函数返回真，则将该数组的这一项存入新的数组；否则不要
-   * 要检验的数组，及断言函数
-   * 返回检验后的数组
-   * 例如传入var users = [{ 'user': 'barney', 'age': 36, 'active': true },{ 'user': 'fred',   'age': 40, 'active': false }];
-   * 返回[{ 'user': 'barney', 'age': 36, 'active': true }]，前提是函数是按照'active'的值来判断真假
-   */
-  filter: function(users, f) {
-    var result = []
-    for (var i = 0; i < users.length; i++) {
-      if (f(users[i], i, users)) {
-        result.push(users[i])
+
+    if (Array.isArray(collection)) {
+      for (var i = 0; i < collection.length; i++) {
+        result.push(iterater(collection[i], i, collection))
+      }
+    } else if (typeof collection == "object") {
+      for (var key in collection) {
+        result.push(iterater(collection[key], key, collection))
       }
     }
     return result
   },
   /**
-   * 将数组每一项传入函数，若函数返回假，则将该数组的这一项存入新的数组；否则不要
+   * 将数组或对象每一项传入第二个参数，若第二个参数返回真，则将该数组或者对象的这一项存入新的数组；否则不要；
+   * 第二个参数可能是函数、数组、对象、字符串
+   * 要检验的数组或对象，及断言函数或数组、对象、字符串
+   * 返回检验后的数组
+   * 例如传入var users = [{ 'user': 'barney', 'age': 36, 'active': true },{ 'user': 'fred',   'age': 40, 'active': false }];
+   * 返回[{ 'user': 'barney', 'age': 36, 'active': true }]，前提是函数是按照'active'的值来判断真假
+   */
+  filter: function(collection, predicate) {
+    var result = []
+    if (!predicate) {
+      fn = function(a) {
+        return a
+      }
+    } else if (Array.isArray(predicate)) {
+      fn = function(obj) {
+        if (obj[predicate[0]] == predicate[1]) {
+          return true
+        }
+        return false
+      }
+    } else if (typeof predicate == "object") {
+      fn = function(obj) {
+        for (var key in predicate) {
+          if (predicate[key] != obj[key]) {
+            return false
+          }
+        }
+        return true
+      }
+    } else if (typeof predicate == "string") {
+      fn = function(obj) {
+        return obj[predicate]
+      }
+    } else {
+      fn = predicate
+    }
+
+    for (var key in collection) {
+      if (fn(collection[key]))
+        result.push(collection[key])
+    }
+    return result
+  },
+  /**
+   * 和filter相反，将数组每一项传入函数，若函数返回假，则将该数组的这一项存入新的数组；否则不要
    * 要检验的数组，及断言函数
    * 返回检验后的数组
    * 例如传入var users = [{ 'user': 'barney', 'age': 36, 'active': true },{ 'user': 'fred',   'age': 40, 'active': false }];
    * 返回[{ 'user': 'fred',   'age': 40, 'active': false }]，前提是函数是按照'active'的值来判断真假
    */
-  reject: function(users, f) {
+  reject: function(collection, predicate) {
     var result = []
-    for (var i = 0; i < users.length; i++) {
-      if (!f(users[i], i, users)) {
-        result.push(users[i])
+    if (!predicate) {
+      fn = function(a) {
+        return a
       }
+    } else if (Array.isArray(predicate)) {
+      fn = function(obj) {
+        if (obj[predicate[0]] == predicate[1]) {
+          return true
+        }
+        return false
+      }
+    } else if (typeof predicate == "object") {
+      fn = function(obj) {
+        for (var key in predicate) {
+          if (predicate[key] != obj[key]) {
+            return false
+          }
+        }
+        return true
+      }
+    } else if (typeof predicate == "string") {
+      fn = function(obj) {
+        return obj[predicate]
+      }
+    } else {
+      fn = predicate
+    }
+
+    for (var key in collection) {
+      if (!fn(collection[key]))
+        result.push(collection[key])
     }
     return result
   },
@@ -614,13 +709,41 @@ var WuFang = {
    * [{ 'user': 'pebbles', 'age': 1,  'active': false }]
    * ]，前提是函数是按照'active'的值来判断真假
    */
-  partition: function(users, f) {
+  partition: function(collection, predicate) {
     var result = [
       [],
       []
     ]
+    if (!predicate) {
+      fn = function(a) {
+        return a
+      }
+    } else if (Array.isArray(predicate)) {
+      fn = function(obj) {
+        if (obj[predicate[0]] == predicate[1]) {
+          return true
+        }
+        return false
+      }
+    } else if (typeof predicate == "object") {
+      fn = function(obj) {
+        for (var key in predicate) {
+          if (predicate[key] != obj[key]) {
+            return false
+          }
+        }
+        return true
+      }
+    } else if (typeof predicate == "string") {
+      fn = function(obj) {
+        return obj[predicate]
+      }
+    } else {
+      fn = predicate
+    }
+
     for (var i = 0; i < users.length; i++) {
-      if (f(users[i], i, users)) {
+      if (fn(users[i], i, users)) {
         result[0].push(users[i])
       } else {
         result[1].push(users[i])
@@ -628,9 +751,44 @@ var WuFang = {
     }
     return result
   },
-  every: function(users, f) {
+  /**
+   * 将数组或对象每一项传入第二个参数，若第二个参数返回真，则返回true，否则返回false；
+   * 第二个参数可能是函数、数组、对象、字符串
+   * 要检验的数组或对象，及断言函数或数组、对象、字符串
+   * 返回检验后的数组
+   * 例如传入([true, 1, null, 'yes'], Boolean),则返回false
+   */
+  every: function(collection, predicate) {
+    if (!predicate) {
+      fn = function(a) {
+        return a
+      }
+    } else if (Array.isArray(predicate)) {
+      fn = function(obj) {
+        if (obj[predicate[0]] == predicate[1]) {
+          return true
+        }
+        return false
+      }
+    } else if (typeof predicate == "object") {
+      fn = function(obj) {
+        for (var key in predicate) {
+          if (predicate[key] != obj[key]) {
+            return false
+          }
+        }
+        return true
+      }
+    } else if (typeof predicate == "string") {
+      fn = function(obj) {
+        return obj[predicate]
+      }
+    } else {
+      fn = predicate
+    }
+
     for (var i = 0; i < users.length; i++) {
-      if (f(users[i], i, users)) {
+      if (fn(users[i], i, users)) {
         continue
       } else {
         return false
@@ -638,9 +796,43 @@ var WuFang = {
     }
     return true
   },
-  some: function(users, f) {
+  /**
+   * 将数组或对象每一项传入第二个参数，若每一项都为真，则返回true，只要有一个为假，否则返回false；
+   * 第二个参数可能是函数、数组、对象、字符串
+   * 要检验的数组或对象，及断言函数或数组、对象、字符串
+   * 返回检验后的数组
+   * 例如传入([true, 1, null, 'yes'], Boolean),则返回true
+   */
+  some: function(collection, predicate) {
+    if (!predicate) {
+      fn = function(a) {
+        return a
+      }
+    } else if (Array.isArray(predicate)) {
+      fn = function(obj) {
+        if (obj[predicate[0]] == predicate[1]) {
+          return true
+        }
+        return false
+      }
+    } else if (typeof predicate == "object") {
+      fn = function(obj) {
+        for (var key in predicate) {
+          if (predicate[key] != obj[key]) {
+            return false
+          }
+        }
+        return true
+      }
+    } else if (typeof predicate == "string") {
+      fn = function(obj) {
+        return obj[predicate]
+      }
+    } else {
+      fn = predicate
+    }
     for (var i = 0; i < users.length; i++) {
-      if (f(users[i], i, users)) {
+      if (fn(users[i], i, users)) {
         return true
       } else {
         continue
@@ -648,6 +840,14 @@ var WuFang = {
     }
     return false
   },
+  /**
+   * 将数组或对象每一项传入函数中，再次将数组或对象的下一个值和函数的返回值一起再传入函数，以此类推
+   * 将返回的值累加后返回，如果没有提供初始值，则将数组或者对象的第一个元素作为初始值
+   * arr是用来迭代的集合，fn是每次迭代调用的函数，value是初始值
+   * 要检验的数组或对象，及断言函数或数组、对象、字符串
+   * 返回检验后的数组
+   * 例如传入([1, 2], function(sum, n) {return sum + n;}, 0),则返回3
+   */
   reduce: function(arr, fn, value) {
     var a = arr.length
     var result = 0
@@ -665,15 +865,26 @@ var WuFang = {
         arr.splice(0, 1)
       }
     }
-
     return result
   },
+  /**
+   * 获取array数组的第n个元素。如果n为负数，则返回从数组结尾开始的第n个元素。
+   * arr是要查询的数组，value是要返回元素的索引值
+   * 返回查询到的元素的索引值
+   * 输入(['a', 'b', 'c', 'd']，1)，返回'b'
+   */
   nth: function(arr, value) {
     if (value < 0) {
       return arr[arr.length - Math.abs(value)]
     }
     return arr[value]
   },
+  /**
+   * 使用二进制的方式检索来决定value值应该插入到数组中尽可能小的索引位置，以保证array的排序
+   * arr是要查询的数组，value是要查询的值
+   * 返回value应该插入的位置的索引值
+   * 输入([30, 50], 40)，返回1
+   */
   sortedIndex: function(arr, value) {
     for (var i = 0; i < arr.length; i++) {
       if (arr[i] <= value && arr[i + 1] >= value) {
@@ -681,13 +892,12 @@ var WuFang = {
       }
     }
   },
-  capitalize: function(str) {
-    var retStr = str[0].toUpperCase()
-    for (var i = 1; i < str.length; i++) {
-      retStr += str[i].toLowerCase()
-    }
-    return retStr
-  },
+  /**
+   * 检查字符串string是否以给定的target字符串结尾
+   * arr是要查询的数组，target是要检索的字符，position是检索的位置
+   * 如果字符串string以target字符串结尾，那么返回 true，否则返回 false
+   * 输入('abc', 'c')，返回true
+   */
   endsWith: function(str, target, position) {
     if (position == undefined) {
       position = str.length
@@ -698,6 +908,12 @@ var WuFang = {
       return false
     }
   },
+  /**
+   * 转义string中的 "&", "<", ">", '"',"'", 和 "`" 字符为 HTML 实体字符
+   * 要转义的字符串
+   * 返回转义后字符串
+   * 输入(fred, barney, & pebbles')，返回'fred, barney, &amp; pebbles'
+   */
   escape: function(str) {
     var retStr = ""
     for (var i = 0; i < str.length; i++) {
@@ -723,6 +939,12 @@ var WuFang = {
     }
     return retStr
   },
+  /**
+   * 转义 RegExp 字符串中特殊的字符 "^", "$", "",".","*","+","?","(",")","[","]","{","}", 和"|" in
+   * @param  要转义的字符串
+   * @return 返回转义后的字符串
+   * 输入'[lodash](https://lodash.com/)'，则返回'\[lodash\]\(https://lodash\.com/\)'
+   */
   escapeRegExp: function(str) {
     var retStr = ""
     for (var i = 0; i < str.length; i++) {
@@ -754,7 +976,7 @@ var WuFang = {
     }
     return retStr
   },
-
+  //检验一个字符是不是字母
   letter: function(char) {
     if (char == undefined) {
       return false
@@ -765,13 +987,19 @@ var WuFang = {
       return false
     }
   },
-
+  //检验一个字符是不是大写字母
   isUpperCase: function(char) {
     if (char.charCodeAt() >= 65 && char.charCodeAt() <= 90) {
       return true
     }
     return false
   },
+  /**
+   * 转换字符串string为驼峰写法
+   * 要转换的字符串
+   * 返回驼峰写法的单词
+   * 例如('Foo Bar')，返回'fooBar'
+   */
   camelCase: function(str) {
     var str1 = ""
     for (var i = 0; i < str.length; i++) {
@@ -789,6 +1017,12 @@ var WuFang = {
     }
     return finalStr
   },
+  /**
+   * 转换字符串string为kebab case，也就是单词间以中划线隔开
+   * 要转换的字符串
+   * 返回kebab case的形式的单词
+   * 例如('Foo Bar')，返回'foo-Bar'
+   */
   kebabCase: function(str) {
     var newStr = ""
     for (var i = 0; i < str.length; i++) {
@@ -806,6 +1040,12 @@ var WuFang = {
     }
     return finalStr
   },
+  /**
+   * 转换字符串string以空格分开单词，并转换为小写
+   * 要转换的字符串
+   * 返回以空格分开的小写的字符串
+   * 例如('Foo Bar')，返回'foo bar'
+   */
   lowerCase: function(str) {
     var newStr = ""
     for (var i = 0; i < str.length; i++) {
@@ -823,6 +1063,12 @@ var WuFang = {
     }
     return finalStr
   },
+  /**
+   * 转换字符串string为 snake case，也就是单词间以下划线隔开
+   * 要转换的字符串
+   * 返回以下划线隔开的字符串，且是小写的
+   * 例如('Foo Bar')，返回'foo_bar'
+   */
   snakeCase: function(str) {
     var newStr = ""
     for (var i = 0; i < str.length; i++) {
@@ -840,6 +1086,12 @@ var WuFang = {
     }
     return finalStr
   },
+  /**
+   * 转换 string 字符串为 start case，也就是单词间以空格隔开，且所有手写字母是大写
+   * 要转换的字符串
+   * 返回转换的字符串
+   * 例如('Foo Bar')，返回'Foo Bar'
+   */
   startCase: function(str) {
     var newStr = ""
     for (var i = 0; i < str.length; i++) {
@@ -863,8 +1115,13 @@ var WuFang = {
 
     }
     return finalStr
-
   },
+  /**
+   * 转换 string字符串的首字母为小写
+   * 要转换的字符串
+   * 返回转换的字符串
+   * 例如('Fred')，返回'fred'
+   */
   lowerFirst: function(str) {
     var retStr = str[0].toLowerCase()
     for (var i = 1; i < str.length; i++) {
@@ -872,6 +1129,14 @@ var WuFang = {
     }
     return retStr
   },
+  /**
+   * 填充字符串，如果字符串长度小于length，则从左侧和右侧一起开始填充字符。
+   * 如果左侧和右侧没法平均分配，则截断超出的长度
+   * 要转换的字符串；最终的字符串的长度；要填充的字符串，字符串可以只有一个字符，也可以有多个，
+   * 如果没有指定填充的字符串，则其为空格
+   * 返回转换的字符串
+   * 例如('abc', 8)，返回'  abc   '
+   */
   pad: function(str, len, char) {
     if (str.length == len) {
       return str
@@ -892,6 +1157,14 @@ var WuFang = {
     }
     return finalStr
   },
+  /**
+   * 和上面的相似。填充字符串，如果字符串长度小于length，则从右侧一起开始填充字符。
+   * 如果左侧和右侧没法平均分配，则截断超出的长度
+   * 要转换的字符串；最终的字符串的长度；要填充的字符串，字符串可以只有一个字符，也可以有多个，
+   * 如果没有指定填充的字符串，则其为空格
+   * 返回转换的字符串
+   * 例如('abc', 6)，返回'abc   '
+   */
   padEnd: function(str, len, char) {
     if (str.length == len) {
       return str
@@ -909,6 +1182,14 @@ var WuFang = {
     }
     return finalStr
   },
+  /**
+   * 和上面的相似。填充字符串，如果字符串长度小于length，则从左侧一起开始填充字符。
+   * 如果左侧和右侧没法平均分配，则截断超出的长度
+   * 要转换的字符串；最终的字符串的长度；要填充的字符串，字符串可以只有一个字符，也可以有多个，
+   * 如果没有指定填充的字符串，则其为空格
+   * 返回转换的字符串
+   * 例如('abc', 6)，返回'   abc'
+   */
   padStart: function(str, len, char) {
     if (str.length == len) {
       return str
@@ -926,6 +1207,19 @@ var WuFang = {
     }
     return finalStr
   },
+  /**
+   * 转换字符串string首字母为大写，剩下为小写
+   * 要转换的字符串
+   * 返回转换的字符串
+   * 例如('FRED')，返回'Fred'
+   */
+  capitalize: function(str) {
+    var retStr = str[0].toUpperCase()
+    for (var i = 1; i < str.length; i++) {
+      retStr += str[i].toLowerCase()
+    }
+    return retStr
+  },
   // parseInt: function(str, value) {
   // if ((value == undefined || value == 0) && (str[0] != "0" && str[1] != "x")) {
   //   value = 10
@@ -935,6 +1229,14 @@ var WuFang = {
   // }
   //   return Number(str)
   // },
+  /**
+   * 将给定字符串重复N次
+   * @param  str是要重复的字符串
+   * @param  要重复的的次数
+   * @return 返回重复后的字符串
+   * ('*', 3)
+   *  => '***'
+   */
   repeat: function(str, value) {
     var retStr = ""
     for (var i = 0; i < value; i++) {
@@ -942,6 +1244,15 @@ var WuFang = {
     }
     return retStr
   },
+  /**
+   * 将字符串中和pattern匹配的字符串改为replacement
+   * @param  要替换的字符串
+   * @param  匹配的内容
+   * @param  替换的内容
+   * @return 返回替换后的字符串
+   * ('Hi Fred', 'Fred', 'Barney')
+   * => 'Hi Barney'
+   */
   replace: function(str, patter, replacement) {
     var arr = str.split(" ")
     for (var i = 0; i < arr.length; i++) {
@@ -951,6 +1262,15 @@ var WuFang = {
     }
     return arr.join(" ")
   },
+  /**
+   * 将字符串以某种符号为间隔分开成数组
+   * @param  要分隔的字符串
+   * @param  分隔的符号
+   * @param  数组长度的限制
+   * @return 返回分隔后的数组
+   * ('a-b-c', '-', 2)
+   * => ['a', 'b']
+   */
   split: function(str, separator, limit) {
     var arr = []
     for (var i = 0; i < str.length; i++) {
@@ -963,31 +1283,133 @@ var WuFang = {
     }
     return arr
   },
-  at: function(obj, arr) {
-    var ret = []
-    var str = ""
-    var str1 = ""
-    for (var i = 0; i < arr.length - 1; i++) {
-      str = arr[i].split(".")
-      str1 = str[0][0]
+  // at: function(obj, arr) {
+  //   var ret = []
+  //   var arrFisrt = []
+  //   var arrSecond = []
+  //   var str = ""
+  //   for (var i = 0; i < arr.length; i++) {
+  //     str = ""
+  //     arrFisrt = arr[i].split(".") //arrFisrt = ["a[0]", "b", "c"]
+  //     arrSecond = []
+  //     arrSecond.push(arrFisrt[0][0]) //arrSecond = ["a"]
+  //     str += '[' + "'" + arrSecond[0] + "'" + ']' + '[' + i + ']' // str = ['a'][0]
+  //     for (var j = 1; j < arrFisrt.length; j++) {
+  //       str += '[' + "'" + arrFisrt[j] + "'" + ']'
+  //     }
+  //     var str1 = "obj" + str
+  //     str1.replace("\"","")
+  //     ret.push(str1)
+  //   }
 
-
-
-      console.log(object[str1][i][str[1][2]])
+  //   return ret
+  // },
+  /**
+   * @param  {将要倒置的对象}
+   * @return {返回倒置后的对象}
+   * ({ 'a': 1, 'b': 2, 'c': 1 })
+   * => { '1': 'c', '2': 'b' }
+   */
+  invert: function(obj) {
+    var resultObj = {}
+    for (var key in obj) {
+      resultObj[obj[key]] = key
     }
-
-    return ret
+    return resultObj
+  },
+  /**
+   * @param  {对象}
+   * @return {但会对象的属性名}
+   */
+  keys: function(obj) {
+    var arr = []
+    for (var key in obj) {
+      arr.push(key)
+    }
+    return arr
+  },
+  /**
+   * @param  {对象}
+   * @return {返回对象的属性值}
+   */
+  values: function(obj) {
+    var arr = []
+    for (var key in obj) {
+      arr.push(obj[key])
+    }
+    return arr
+  },
+  // forIn: function(obj, iteratee) {
+  //   for (var key in obj) {
+  //       if(!iteratee(obj[key], key, obj)) {
+  //         return 
+  //       }
+  //   }
+  // },
+  /**
+   * 创建一个对象，对象的值与object相同，并且其属性是通过函数运行产生的新的属性
+   * @param  {要遍历的对象}
+   * @param  {每次迭代时调用的函数}
+   * @return {返回映射后的新对象}
+   */
+  mapKeys: function(obj, iteratee) {
+    var newObj = {}
+    for (var key in obj) {
+      newObj[iteratee(obj[key], key, obj)] = obj[key]
+    }
+    return newObj
+  },
+  /**
+   * 创建一个对象，对象的属性与object相同，并且其属性值是通过函数运行产生的新的属性值
+   * @param  {对象}
+   * @param  {迭代的函数}
+   * @return {返回对象的属性值}
+   */
+  mapValues: function(obj, iteratee) {
+    var newObj = {}
+    for (var key in obj) {
+      newObj[key] = iteratee(obj[key], key, iteratee)
+    }
+    return newObj
+  },
+  /**
+   * 创建一个从 object 中选中的属性的对象
+   * @param  {来源对象}
+   * @param  {要被忽略的属性}
+   * @return {返回新对象}
+   * ({ 'a': 1, 'b': '2', 'c': 3 },['a', 'c'])
+   * => { 'a': 1, 'c': 3 }
+   */
+  pick: function(obj, paths) {
+    var newObj = {}
+    for (var key in obj) {
+      for (var i = 0; i < paths.length; i++) {
+        if (key == paths[i]) {
+          newObj[key] = obj[key]
+        }
+      }
+    }
+    return newObj
   },
 
 }
-var object = {
-  'a': [{
-    'b': {
-      'c': 3
-    }
-  }, 4]
-};
+
 // console.log(object['a'][0]['b']['c'])
-console.log(WuFang.at(object, ['a[0].b.c', 'a[1]']))
-  // console.log(WuFang.startCase('--foo-bar--'))
-  // console.log(WuFang.startCase('__FOO_BAR__'))
+// var object = {
+//   'a': [{
+//     'b': {
+//       'c': 3
+//     }
+//   }, 4]
+// };
+// console.log(WuFang.at(object, ['a[0].b.c', 'a[1]']))
+// console.log(WuFang.startCase('--foo-bar--'))
+// var object = {
+//   'a': 1,
+//   'b': '2',
+//   'c': 3
+// };
+
+
+
+console.log(WuFang.map(users, 'user'))
