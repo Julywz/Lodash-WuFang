@@ -742,11 +742,11 @@ var WuFang = {
       fn = predicate
     }
 
-    for (var i = 0; i < users.length; i++) {
-      if (fn(users[i], i, users)) {
-        result[0].push(users[i])
+    for (var i = 0; i < collection.length; i++) {
+      if (fn(collection[i], i, collection)) {
+        result[0].push(collection[i])
       } else {
-        result[1].push(users[i])
+        result[1].push(collection[i])
       }
     }
     return result
@@ -787,8 +787,8 @@ var WuFang = {
       fn = predicate
     }
 
-    for (var i = 0; i < users.length; i++) {
-      if (fn(users[i], i, users)) {
+    for (var i = 0; i < collection.length; i++) {
+      if (fn(collection[i], i, collection)) {
         continue
       } else {
         return false
@@ -831,8 +831,8 @@ var WuFang = {
     } else {
       fn = predicate
     }
-    for (var i = 0; i < users.length; i++) {
-      if (fn(users[i], i, users)) {
+    for (var i = 0; i < collection.length; i++) {
+      if (fn(collection[i], i, collection)) {
         return true
       } else {
         continue
@@ -1373,9 +1373,19 @@ var WuFang = {
    * @return {返回对象的属性值}
    */
   mapValues: function(obj, iteratee) {
+    if (!iteratee) {
+      iterateer = function(a) {
+        return a
+      }
+    }
+    if (typeof iteratee == 'string') {
+      iterateer = function() {
+        return obj[key][iteratee]
+      }
+    }
     var newObj = {}
     for (var key in obj) {
-      newObj[key] = iteratee(obj[key], key, iteratee)
+      newObj[key] = iterateer(obj[key], key, obj)
     }
     return newObj
   },
@@ -1401,6 +1411,15 @@ var WuFang = {
 
 }
 
+var users = {
+  'fred': {
+    'user': 'fred',
+    'age': 40
+  },
+  'pebbles': {
+    'user': 'pebbles',
+    'age': 1
+  }
+};
 
-
-console.log(WuFang.replace('Hi Fred', 'Fred', 'Barney'))
+console.log(WuFang.mapValues(users, 'age'))
