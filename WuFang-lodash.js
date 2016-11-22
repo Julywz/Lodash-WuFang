@@ -1411,15 +1411,15 @@ var WuFang = {
 
 }
 
-var users = {
-  'fred': {
-    'user': 'fred',
-    'age': 40
-  },
-  'pebbles': {
-    'user': 'pebbles',
-    'age': 1
-  }
-};
+// var users = {
+//   'fred': {
+//     'user': 'fred',
+//     'age': 40
+//   },
+//   'pebbles': {
+//     'user': 'pebbles',
+//     'age': 1
+//   }
+// };
 
-console.log(WuFang.mapValues(users, 'age'))
+// console.log(WuFang.mapValues(users, 'age'))
