@@ -1283,27 +1283,33 @@ var WuFang = {
     }
     return arr
   },
-  // at: function(obj, arr) {
-  //   var ret = []
-  //   var arrFisrt = []
-  //   var arrSecond = []
-  //   var str = ""
-  //   for (var i = 0; i < arr.length; i++) {
-  //     str = ""
-  //     arrFisrt = arr[i].split(".") //arrFisrt = ["a[0]", "b", "c"]
-  //     arrSecond = []
-  //     arrSecond.push(arrFisrt[0][0]) //arrSecond = ["a"]
-  //     str += '[' + "'" + arrSecond[0] + "'" + ']' + '[' + i + ']' // str = ['a'][0]
-  //     for (var j = 1; j < arrFisrt.length; j++) {
-  //       str += '[' + "'" + arrFisrt[j] + "'" + ']'
-  //     }
-  //     var str1 = "obj" + str
-  //     str1.replace("\"","")
-  //     ret.push(str1)
-  //   }
+  /**
+   * 对象按照a数组中的元素的路径得到属性值
+   * 将数组中的元素分离成单独的字符的字符串，并将其中的符号都去掉；遍历最后得到的数组，每次都能得到一个对应的对象的属性值
+   * 并将这个属性值重新赋给对象，以此将对象不断降级，知道只剩最后要的属性值
+   * @param  obj要迭代的对象
+   * @param  arr遍历的路径
+   * @return 返回遍历得到的属性值的数组
+   */
+  at: function(obj, arr) {
+    var ret = []
+    for (var i = 0; i < arr.length; i++) {
+      var separateArr = arr[i].split("")
+      var newArr = []
+      for (var j = 0; j < separateArr.length; j++) {
+        if (separateArr[j] != '[' && separateArr[j] != ']' && separateArr[j] != '.') {
+          newArr.push(separateArr[j])
+        }
+      }
+      var newObject = obj
+      for (var k = 0; k < newArr.length; k++) { //对象降级
+        newObject = newObject[newArr[k]]
+      }
+      ret.push(newObject)
+    }
 
-  //   return ret
-  // },
+    return ret
+  },
   /**
    * @param  {将要倒置的对象}
    * @return {返回倒置后的对象}
@@ -1341,10 +1347,11 @@ var WuFang = {
   },
   // forIn: function(obj, iteratee) {
   //   for (var key in obj) {
-  //       if(!iteratee(obj[key], key, obj)) {
-  //         return 
-  //       }
+  //     if (!iteratee(obj[key], key, obj)) {
+  //       return obj
+  //     }
   //   }
+  //   return obj
   // },
   /**
    * 创建一个对象，对象的值与object相同，并且其属性是通过函数运行产生的新的属性
@@ -1394,22 +1401,6 @@ var WuFang = {
 
 }
 
-// console.log(object['a'][0]['b']['c'])
-// var object = {
-//   'a': [{
-//     'b': {
-//       'c': 3
-//     }
-//   }, 4]
-// };
-// console.log(WuFang.at(object, ['a[0].b.c', 'a[1]']))
-// console.log(WuFang.startCase('--foo-bar--'))
-// var object = {
-//   'a': 1,
-//   'b': '2',
-//   'c': 3
-// };
 
 
-
-console.log(WuFang.map(users, 'user'))
+console.log(WuFang.replace('Hi Fred', 'Fred', 'Barney'))
