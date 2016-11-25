@@ -69,9 +69,9 @@ var WuFang = {
   },
   /**
    * 传入的第一个数组中的元素如果在后面的数组中也存在，就删除，如果在后面的数组都不存在，就保存并返回
-   * 参数时数组，个数不固定
-   * 返回的是包含第一个数组中在后面的数组中都不存在的数组
-   * 例如([2, 1, 6, 8], [2, 3], [8]))返回[1,6]
+   * 参数是数组，个数不固定
+   * 返回的是包含第一个数组中在后面的数组中都不存在的元素组成的数组
+   * 例如([2, 1, 6, 8], [2, 3], [8])返回[1,6]
    */
   difference: function() {
     var compare = []
@@ -95,6 +95,37 @@ var WuFang = {
       }
     }
     return ret
+  },
+  /**
+   * array和arr中的每个元素都运行函数f，
+   * 运行后的值进行比较，如果array中的某个值运行后再arr中不存在，那么将数组原来的值push进新的数组
+   * array比较的数组，arr被比较的数组，f映射的函数
+   * 返回的是包含运行f后第一个数组中在后面的数组中都不存在的元素组成的数组
+   * 例如([3.1, 2.2, 1.3], [4.4, 2.5], Math.floor)返回[3.1, 1.3]
+   */
+  differenceBy: function(array, arr, f) {
+    if (typeof f == 'string') {
+      fn = function(value) {
+        return value[f]
+      }
+    } else {
+      fn = f
+    }
+    // if (Array.isArray(fn)) {
+
+    // }
+    // if (typeof fn = 'object') {
+
+    // }
+    return array.filter(function(a) {
+      var ret = [];
+      ret.push(a);
+      return arr.map(b => fn(b)).every(b => b != ret.map(c => fn(c)))
+    })
+    array.filter(a => !f(a))
+  },
+  differenceWith: function(array, arr, f) {
+    return array.filter(a => !f(a, arr[0]))
   },
   /**
    * 删除数组前n项
@@ -1408,18 +1439,141 @@ var WuFang = {
     }
     return newObj
   },
+  /**
+   * 在第二个参数(函数)被调用n次之后，这个函数才能真正执行
+   * @param  n函数被调用的次数
+   * @param  func定义的函数
+   * @return 返回第二个参数(函数)被执行的结果
+   * 例如aaa = after(4,console.log),这句话执行之后
+   * aaa就是一个函数，且
+   * aaa = function (arg) {
+   *   counter++
+   *   if (counter > n) {
+   *      return func(arg)
+   *   }
+   * }
+   *且函数中的n == 4，func == console.log()
+   *接下来调用aaa(888888)，那么在aaa这个函数执行四次之后，就可以执行到return func(arg)这句话了
+   *这句话返回888888,(前提是给aaa的参数还是888888)，之后每次调用aaa都可以执行了，参数是可以改变的
+   */
+  after: function(n, func) {
+    var counter = 0
+    return function(arg) {
+      counter++
+      if (counter > n) {
+        return func(arg)
+      }
+
+    }
+  },
+  /**
+   * 和after类似，在函数调用n次之前，每次返回函数值，
+   * n次之后再调用的话就返回第n次调用的返回的结果
+   * @param  {[type]} n    [description]
+   * @param  {[type]} func [description]
+   * @return {[type]}      [description]
+   */
+  before: function(n, func) {
+    var counter = 0
+    var lastValue
+    return function(arg) {
+      counter++
+      if (counter <= n) {
+        lastValue = func(arg)
+        return lastValue
+      } else {
+        return lastValue
+      }
+    }
+  },
+  /**
+   * 比较两个对象时否相等
+   * @param  对象a 
+   * @param  对象b 
+   * @return true or false
+   */
+  isEqual: function(a, b) {
+    if (typeof a != typeof b) {
+      return false
+    }
+    if (a != a && b != b) {
+      return true
+    }
+    if (a === b) {
+      return true
+    }
+    if (a !== b && typeof a === 'number' && typeof b === 'number') {
+      return false
+    }
+    var arr = []
+    for (var key in a) {
+      arr.push(key)
+    }
+    for (var key in b) {
+      if (arr.indexOf(key) < 0) {
+        arr.push(key)
+      }
+    }
+    for (key of arr) {
+      if (!WuFang.isEqual(a[key], b[key])) {
+        return false
+      }
+    }
+    return true
+  },
+  /**
+   * 比较source中每个值和compare中对应的值是否相等
+   * @param   source 
+   * @return  被比较的对象
+   */
+  matches: function(source) {
+    var self = this
+    return function(compare) {
+      for (var key in source) {
+        if (!self.isEqual(source[key], compare[key])) {
+          return false
+        }
+      }
+      return true
+    }
+  },
+  /**
+   * 检测给定路径在对象中的值是否和srcValue相等
+   * @param  给定的路径
+   * @param  比较的值
+   * @return Boolean
+   */
+  matchesProperty: function(path, srcValue) {
+    return function(obj) {
+      if (obj[path] == srcValue) {
+        return true
+      }
+      return false
+    }
+  },
+  property: function(path) {
+    return function(obj) {
+      var ret = []
+      var arr = path.split('.')
+      for (var j = 0; j < obj.length; j++) {
+        for (var i = 0; i < arr.length; i++) {
+          obj[j] = obj[j][arr[i]]
+        }
+        ret.push(obj[j])
+      }
+      return ret
+    }
+  },
 
 }
-
-// var users = {
-//   'fred': {
-//     'user': 'fred',
-//     'age': 40
-//   },
-//   'pebbles': {
-//     'user': 'pebbles',
-//     'age': 1
-//   }
-// };
-
-// console.log(WuFang.mapValues(users, 'age'))
+// var objects = [{
+//   'x': 1,
+//   'y': 2
+// }, {
+//   'x': 2,
+//   'y': 1
+// }];
+// console.log(WuFang.differenceWith(objects, [{
+//   'x': 1,
+//   'y': 2
+// }], WuFang.isEqual))
