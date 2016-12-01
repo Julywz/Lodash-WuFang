@@ -287,6 +287,19 @@ var WuFang = {
     return result
   },
   /**
+   * 将数组降维depth次
+   * @param  降维的数组
+   * @param  降维的次数
+   * @return 返回降维后的数组
+   */
+  flattenDepth: function(arr, depth) {
+    var result = arr
+    for (var i = 0; i < depth; i++) {
+      var result = this.flatten(result)
+    }
+    return result
+  },
+  /**
    * 将数组降为一维的数组，就是只要数组中还有数组，就将递归调用自己，继续降维；直到数组中没有数组
    * 参数就是数组
    * 返回的降维后的数组
@@ -1931,16 +1944,15 @@ var WuFang = {
 }
 
 // var json = '{ "foo": true, "bar": 1342, "str": [true,2,3], "obj": { "foo": "bar", "ffo": "abc" }}'
-var users = [{
-  'user': 'barney',
-  'active': true
-}, {
-  'user': 'fred',
-  'active': false
-}, {
-  'user': 'pebbles',
-  'active': false
-}];
-console.log(WuFang.findLastIndex(users, function(o) {
-  return o.user == 'pebbles';
-}))
+// var users = [{
+//   'user': 'barney',
+//   'active': true
+// }, {
+//   'user': 'fred',
+//   'active': false
+// }, {
+//   'user': 'pebbles',
+//   'active': false
+// }];
+// var array = [1, [2, [3, [4]], 5]];
+// console.log(WuFang.flattenDepth(array, 1))
