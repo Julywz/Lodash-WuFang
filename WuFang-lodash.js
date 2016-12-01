@@ -1875,6 +1875,13 @@ var WuFang = {
     }
     return arr.map(a => fn(a)).indexOf(true)
   },
+  /**
+   *  同上，只是从后向前遍历数组
+   * @param  arr 要迭代的数组
+   * @param  f 断言函数
+   * @param  index 开始查询的位置
+   * @return 第一个迭代函数返回为真的元素的下标
+   */
   findLastIndex: function(arr, f, index) {
     if (typeof f == 'object') {
       fn = function(a) {
@@ -1902,7 +1909,11 @@ var WuFang = {
     if (typeof f == 'function') {
       fn = f
     }
-    return arr.map(a => fn(a)).reverse().indexOf(true)
+    if (arr.map(a => fn(a)).reverse().indexOf(true) == -1) {
+      return -1
+    } else {
+      return arr.length - 1 - arr.map(a => fn(a)).reverse().indexOf(true)
+    }
   }
 
 }
@@ -1919,6 +1930,6 @@ var users = [{
   'active': false
 }];
 console.log(WuFang.findLastIndex(users, {
-  'user': 'barney',
+  'user': 'barne',
   'active': true
 }))
