@@ -1847,6 +1847,9 @@ var WuFang = {
    * @return 第一个迭代函数返回为真的元素的下标
    */
   findIndex: function(arr, f, index) {
+    if (index == undefined) {
+      index = 0
+    }
     if (typeof f == 'function') {
       fn = f
     }
@@ -1873,7 +1876,12 @@ var WuFang = {
         return a[f]
       }
     }
-    return arr.map(a => fn(a)).indexOf(true)
+    for (var i = index; i < arr.length; i++) {
+      if (fn(arr[i])) {
+        return i
+      }
+    }
+    return -1
   },
   /**
    *  同上，只是从后向前遍历数组
@@ -1883,6 +1891,9 @@ var WuFang = {
    * @return 第一个迭代函数返回为真的元素的下标
    */
   findLastIndex: function(arr, f, index) {
+    if (index == undefined) {
+      index = arr.length - 1
+    }
     if (typeof f == 'object') {
       fn = function(a) {
         for (var key in f) {
@@ -1909,12 +1920,13 @@ var WuFang = {
     if (typeof f == 'function') {
       fn = f
     }
-    if (arr.map(a => fn(a)).reverse().indexOf(true) == -1) {
-      return -1
-    } else {
-      return arr.length - 1 - arr.map(a => fn(a)).reverse().indexOf(true)
+    for (var i = index; i >= 0; i--) {
+      if (fn(arr[i])) {
+        return i
+      }
     }
-  }
+    return -1
+  },
 
 }
 
@@ -1929,7 +1941,6 @@ var users = [{
   'user': 'pebbles',
   'active': false
 }];
-console.log(WuFang.findLastIndex(users, {
-  'user': 'barne',
-  'active': true
+console.log(WuFang.findLastIndex(users, function(o) {
+  return o.user == 'pebbles';
 }))
