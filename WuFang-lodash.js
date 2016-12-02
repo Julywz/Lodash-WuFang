@@ -404,8 +404,8 @@ var WuFang = {
     for (var i = 0; i < arguments[0].length; i++) {
       counter = 0
       for (var j = 1; j < arguments.length - 1; j++) {
-        for (var k = 0; k < arguments[i].length; k++) {
-          if (fn(arguments[0][i], f) == fn(arguments[j][k]), f) {
+        for (var k = 0; k < arguments[j].length; k++) {
+          if (fn(arguments[0][i], f) == fn(arguments[j][k], f)) {
             counter++
             break
           }
@@ -1995,5 +1995,11 @@ var WuFang = {
 //   'active': false
 // }];
 // var array = [1, [2, [3, [4]], 5]];
-console.log(WuFang.parseJson('[{"a":1,"b":true},2]'))
+console.log(WuFang.intersectionBy([{
+    'x': 1
+  }], [{
+    'x': 2
+  }, {
+    'x': 1
+  }], 'x'))
   // console.log(WuFang.parseJson('[[1],[2]]'))
