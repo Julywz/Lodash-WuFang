@@ -359,7 +359,7 @@ var WuFang = {
     return str + arr[arr.length - 1]
   },
   /**
-   * 取出各数组中全等的元素
+   * 取出各数组中全等的元素,也就是求数组的交集
    * 参数就是需要检查的数组，个数不定
    * 返回的是全等的元素的数组
    * 例如([2, 1], [2, 3])返回[2]
@@ -383,6 +383,43 @@ var WuFang = {
     }
     return ret
   },
+  /**
+   * 取出各数组中经过迭代后相等的元素
+   * 参数就是需要检查的数组，个数不定，以及迭代器，有可能是函数，也有可能是字符串
+   * 返回的是迭代后相等的元素组成的数组
+   * 例如([2.1, 1.2], [2.3, 3.4], Math.floor)返回 [2.1]
+   */
+  intersectionBy: function() {
+    var ret = []
+    var counter = 0
+    var f = arguments[arguments.length - 1]
+    if (typeof f == 'string') {
+      fn = function(a, f) {
+        return a[f]
+      }
+    }
+    if (typeof f == 'function') {
+      fn = f
+    }
+    for (var i = 0; i < arguments[0].length; i++) {
+      counter = 0
+      for (var j = 1; j < arguments.length - 1; j++) {
+        for (var k = 0; k < arguments[i].length; k++) {
+          if (fn(arguments[0][i], f) == fn(arguments[j][k]), f) {
+            counter++
+            break
+          }
+        }
+      }
+      if (counter == arguments.length - 2) {
+        ret.push(arguments[0][i])
+      }
+    }
+    return ret
+  },
+  // intersectionWith: function() {
+
+  // },
   /**
    * 删除数组中的一些与value值相同的元素
    * arr是要删除元素的数组，value是值，如果arr中的元素和value一样，则删除
@@ -1793,6 +1830,7 @@ var WuFang = {
           newObj[key] = keyValue
         }
         if (json[i] == '}') {
+          i++
           return newObj
         }
       }
@@ -1803,10 +1841,12 @@ var WuFang = {
       i++
       for (;; i++) {
         if (json[i] == ']') {
+          i++
           return result
         }
         result.push(parseJson2(json))
         if (json[i] == ']') {
+          i++
           return result
         }
       }
@@ -1955,4 +1995,5 @@ var WuFang = {
 //   'active': false
 // }];
 // var array = [1, [2, [3, [4]], 5]];
-// console.log(WuFang.flattenDepth(array, 1))
+console.log(WuFang.parseJson('[{"a":1,"b":true},2]'))
+  // console.log(WuFang.parseJson('[[1],[2]]'))
