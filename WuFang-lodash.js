@@ -417,9 +417,25 @@ var WuFang = {
     }
     return ret
   },
-  // intersectionWith: function() {
-
-  // },
+  /**
+   * 取出各数组中经过比较后相等的元素，将第一个数组里面的每个元素和后面一个数组中对应下标的元素比较，
+   * 如果相等就push进新的数组里
+   * 参数就是需要检查的数组，两个，一个被比较的数组，一个比较的数组，以及比较的函数
+   * 返回的是比较后相等的元素组成的数组
+   * 例如([2.1, 1.2], [2.3, 3.4], Math.floor)返回 [2.1]
+   */
+  intersectionWith: function() {
+    var ret = []
+    var fn = arguments[arguments.length - 1]
+    for (var i = 0; i < arguments[0].length; i++) {
+      for (var j = 0; j < arguments[1].length; j++) {
+        if (fn(arguments[0][i], arguments[1][j])) {
+          ret.push(arguments[0][i])
+        }
+      }
+    }
+    return ret
+  },
   /**
    * 删除数组中的一些与value值相同的元素
    * arr是要删除元素的数组，value是值，如果arr中的元素和value一样，则删除
@@ -482,6 +498,33 @@ var WuFang = {
       }
     }
     return result
+  },
+  /**
+   * 删除arr数组中的一些与value值经过迭代函数后相同的元素
+   * @param  要修改的数组
+   * @param  要移除值的数组
+   * @param  iteratee（迭代器）调用每个元素
+   * @return 返回删除元素后的arr数组
+   */
+  pullAllBy: function(arr, value, f) {
+    if (typeof f == 'string') {
+      fn = function(obj) {
+        return obj[f]
+      }
+    }
+    if (typeof f == "function") {
+      fn = f
+    }
+    for (var i = 0; i < arr.length; i++) {
+      for (var j = 0; j < value.length; j++) {
+        if (fn(arr[i]) === fn(value[j])) {
+          arr.splice(i, 1)
+          i = i - 1
+          break
+        }
+      }
+    }
+    return arr
   },
   /**
    * 将数组元素倒过来
@@ -1022,6 +1065,35 @@ var WuFang = {
    * 例如传入([1, 2], function(sum, n) {return sum + n;}, 0),则返回3
    */
   reduce: function(arr, fn, value) {
+    var a = arr.length
+    var result = 0
+    if (value == undefined) {
+      result = arr[0]
+      arr.splice(0, 1)
+      for (var i = 0; i < a - 1; i++) {
+        result = fn(result, arr[0])
+        arr.splice(0, 1)
+      }
+    } else {
+      var result = value
+      for (var i = 0; i < a; i++) {
+        result = fn(result, arr[0])
+        arr.splice(0, 1)
+      }
+    }
+    return result
+  },
+  /**
+   * 同上，区别是从数组右边开始迭代的
+   * 将数组或对象每一项传入函数中，再次将数组或对象的下一个值和函数的返回值一起再传入函数，以此类推
+   * 将返回的值累加后返回，如果没有提供初始值，则将数组或者对象的第一个元素作为初始值
+   * arr是用来迭代的集合，fn是每次迭代调用的函数，value是初始值
+   * 要检验的数组或对象，及断言函数或数组、对象、字符串
+   * 返回检验后的数组
+   * 例如传入([1, 2], function(sum, n) {return sum + n;}, 0),则返回3
+   */
+  reduceRight: function(arr, fn, value) {
+    var arr = arr.reverse()
     var a = arr.length
     var result = 0
     if (value == undefined) {
@@ -1980,26 +2052,148 @@ var WuFang = {
     }
     return -1
   },
+  /**
+   * 创建object自身可枚举的值为数组
+   * @param  {要检索的对象} 
+   * @return {对象属性值得数组}  
+   */
+  values: function(value) {
+    var ret = []
+    var obj = {}
+    if(value instanceof String) {     
+      for(var i = 0; i < value.length; i++) {
+        obj[i] = value[i]
+      }
+    } else {
+      obj = value
+    }
+    for(var key in obj) {
+      if(obj.hasOwnProperty(key)) {
+        ret.push(obj[key])
+      }
+    }
+    return ret
+  },
+  /**
+   * cache是一个映射，将fn的参数映射成对应的值，并保存起来。下次再调用的时候，如果参数已经在cache中存在，
+   * 那么直接用cache.get即可得到对应的fn的值；如果不存在，就用cache.set设置参数的映射值，并返回该值；
+   * 而resolver的作用是将传进来的参数变成一个值，如果没定义，就是(it => it)，也就是...args是一个数组存在cache里面，
+   * 为了在外面能够访问到cache，就把cache变成memoized的cache属性
+   * @param   fn 要计算的函数  
+   * @param  {转换函数的参数的函数}  
+   * @return {返回一个判断fn的参数的是否在cache里面已经存在的函数}            
+   */
+  memoize: function(fn, resolver) {
+    resolver = resolver || (it => it)
+    var cache = new Map()
+    function memoized(...args) {
+      var key = resolver(...args)
+      if(cache.has(key)) {
+        return cache.get(key)
+      } else {
+        return cache.set(key, fn(...args)).get(key)
+      }
+    }  
+    memoized.cache = cache
+    return memoized  
+  },
+  /**
+   * 判断参数是不是布尔值
+   * @param  {判断的参数}  
+   * @return {Boolean}     
+   */
+  isBoolean: function(value) {
+    if(typeof value === 'boolean') {
+      return true
+    } else {
+      return false
+    }
+  },
+  /**
+   * 判断参数是不是Date类型
+   * @param  {要判断的数}  
+   * @return {Boolean}      
+   */
+  isDate: function(value) {
+    if(value instanceof Date) {
+      return true
+    } else {
+      return false
+    }
+  },
+  /**
+   * 判断参数是不是DOM节点
+   * @param  {要判断的值}  
+   * @return {Boolean}  
+   */
+  isElement: function(value) {
+    if(value.nodeType != undefined) {
+      return true
+    } else {
+      return false
+    }
+  },
+  /**
+   * 判断参数是不是Error对象，是就返回真，否就返回假
+   * @param  要判断的值
+   * @return 返回布尔值
+   */
+  isError: function(value) {
+    if(value instanceof Error){
+      return true 
+    } else {
+      return false
+    }
+  },
+  /**
+   * 判断参数是不是有限数值，是就返回true，否就返回false
+   * @param  {需要判断的值}  
+   * @return {Boolean}      
+   */
+  isFinite: function(value) {
+    if(typeof value === 'number' && value !== Infinity && value !== -Infinity) {
+      return true
+    } else {
+      return false
+    }
+  },
+  /**
+   * 判断参数是不是一个函数
+   * @param  {要判断的值} 
+   * @return {Boolean}       [description]
+   */
+  isFunction: function(value) {
+    if(typeof value === 'function') {
+      return true
+    } else {
+      return false
+    }
+  },
+  /**
+   * 比较obj中属性和source中的相同的属性值是否相同
+   * @param  {判断的对象}  obj   
+   * @param  {被比较的对象} 
+   * @return {Boolean}       
+   */
+  isMatch: function(obj,source) {
+    for(var key in source) {
+      if(obj[key] != source[key]) {
+        return false
+      }
+    }
+    return true
+  },
+  // matches: function(source) {
+  //   return function() {
+
+  //   }
+  // },
 
 }
 
-// var json = '{ "foo": true, "bar": 1342, "str": [true,2,3], "obj": { "foo": "bar", "ffo": "abc" }}'
-// var users = [{
-//   'user': 'barney',
-//   'active': true
-// }, {
-//   'user': 'fred',
-//   'active': false
-// }, {
-//   'user': 'pebbles',
-//   'active': false
-// }];
-// var array = [1, [2, [3, [4]], 5]];
-console.log(WuFang.intersectionBy([{
-    'x': 1
-  }], [{
-    'x': 2
-  }, {
-    'x': 1
-  }], 'x'))
+
+console.log(WuFang.isElement('abs'))
+
+// object.a = 2
+// console.log(a(object))
   // console.log(WuFang.parseJson('[[1],[2]]'))
