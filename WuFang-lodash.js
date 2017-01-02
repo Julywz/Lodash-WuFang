@@ -527,6 +527,23 @@ var WuFang = {
     return arr
   },
   /**
+   * 数组中与value数组中的元素对于比较函数返回值为真的元素删除
+   * @param  {[修改的数组]} arr        
+   * @param  {[比较的数组]} value      
+   * @param  {[函数]} comparator 
+   * @return {[数组]}            
+   */
+  pullAllWith: function(arr,value,comparator) {
+    return arr.filter(function(it) {
+      for(var i = 0; i < value.length; i++) {
+        if(comparator(it,value[i])) {
+          return false
+        }
+      }
+      return true
+    })
+  },
+  /**
    * 将数组元素倒过来
    * arr要倒序的数组
    * 返回倒序的数组
@@ -601,6 +618,78 @@ var WuFang = {
     return arr
   },
   /**
+   * 从数组前面开始取值，直到遇到元素对断言函数取假
+   * @param  {array}   arr 
+   * @param  {Function} predicate  
+   * @return {array}       
+   */
+  takeWhile: function(arr,predicate) {
+    if (Array.isArray(predicate)) {
+      fn = function(obj) {
+        if (obj[predicate[0]] == predicate[1]) {
+          return true
+        }
+        return false
+      }
+    } else if (typeof predicate == "object") {
+      fn = function(obj) {
+        for (var key in predicate) {
+          if (predicate[key] != obj[key]) {
+            return false
+          }
+        }
+        return true
+      }
+    } else if (typeof predicate == "string") {
+      fn = function(obj) {
+        return obj[predicate]
+      }
+    } else {
+      fn = predicate
+    }
+    for(var i = 0; i < arr.length; i++) {
+      if(!fn(arr[i],i,arr)) {
+        return arr.slice(0,i)
+      }
+    }
+  },
+  /**
+   * 从数组后面开始取值，直到遇到元素对断言函数取假
+   * @param  {array}   arr 
+   * @param  {Function} predicate  
+   * @return {array}       
+   */
+  takeRightWhile: function(arr,predicate) {
+    if (Array.isArray(predicate)) {
+      fn = function(obj) {
+        if (obj[predicate[0]] == predicate[1]) {
+          return true
+        }
+        return false
+      }
+    } else if (typeof predicate == "object") {
+      fn = function(obj) {
+        for (var key in predicate) {
+          if (predicate[key] != obj[key]) {
+            return false
+          }
+        }
+        return true
+      }
+    } else if (typeof predicate == "string") {
+      fn = function(obj) {
+        return obj[predicate]
+      }
+    } else {
+      fn = predicate
+    }
+    for(var i = arr.length - 1; i >= 0; i--) {
+      if(!fn(arr[i],i,arr)) {
+        return arr.slice(i + 1)
+      }
+    }
+  },
+  /**
    * 将n个数组连接成一个数组，但不能有重复的元素
    * n个数组
    * 返回连接后的数组，每次取得实参的值后，用函数判断，新连接的数组中是否已经有这个值了，
@@ -630,30 +719,83 @@ var WuFang = {
     }
   },
   /**
-   * 将数组复制一份，但是要删除掉数组中重复的元素
+   * 两个数组的元素经过迭代器迭代后去重
+   * @param  {数组} arrA     
+   * @param  {数组} arrB     
+   * @param  {函数} iteratee 
+   * @return {数组}          
+   */
+  unionBy: function(arrA,arrB,iteratee) {
+    var arr = arrA.concat(arrB)
+    var ret = []
+    if(typeof iteratee === 'string') {
+      fn = function(obj) {
+        return obj[iteratee]
+      }
+    } else {
+      fn = iteratee
+    }
+    var newArr = arr.map(fn)
+    for(var i = 0; i < newArr.length; i++) {
+      if(newArr.indexOf(newArr[i]) == i) {
+        ret.push(arr[i])
+      }
+    }
+    return ret
+  },
+  unionWith: function() {
+
+  },
+  /**
+   * 数组去重
    * 参数是一个数组
    * 返回复制的没有重复值的数组，和上一个做法一样
    * 例如([2, 1, 2])返回[2, 1]
    */
   uniq: function(arr) {
+    // var ret = []
+    // for (var i = 0; i < arr.length; i++) {
+    //   if (judge(ret, arr[i])) {
+    //     ret.push(arr[i])
+    //   } else {
+    //     continue
+    //   }
+    // }
+    // return ret
+
+    // function judge(array, value) {
+    //   for (var j = 0; j < array.length; j++) {
+    //     if (array[j] == value) {
+    //       return false
+    //     }
+    //   }
+    //   return true
+    // }
+    return Array.from(new Set(arr))
+  },
+  /**
+   * 数组排序并去重
+   * @param  {数组} 要检查排序的数组arr 
+   * @return {数组}     
+   */
+  sortedUniq: function(arr) {
+    return Array.from(new Set(arr.sort()))
+  },
+  /**
+   * 数组根据迭代器迭代的结果去重
+   * @param  {数组}   arr 
+   * @param  {Function} fn  
+   * @return {数组}       
+   */
+  sortedUniqBy: function(arr,fn) {
     var ret = []
-    for (var i = 0; i < arr.length; i++) {
-      if (judge(ret, arr[i])) {
+    var newArr = arr.map(fn)
+    for(var i = 0; i < newArr.length; i++) {
+      if(newArr.indexOf(newArr[i]) == i) {
         ret.push(arr[i])
-      } else {
-        continue
       }
     }
     return ret
-
-    function judge(array, value) {
-      for (var j = 0; j < array.length; j++) {
-        if (array[j] == value) {
-          return false
-        }
-      }
-      return true
-    }
   },
   /**
    * 删除数组中的和value值相等的元素
@@ -1134,6 +1276,87 @@ var WuFang = {
     for (var i = 0; i < arr.length; i++) {
       if (arr[i] <= value && arr[i + 1] >= value) {
         return i + 1
+      }
+    }
+  },
+  /**
+   * 遍历数组，得到和value经过迭代器之后值一样的元素的下标
+   * @param  {遍历的数组} arr      
+   * @param  {比较的值} value    
+   * @param  {迭代器} iteratee 
+   * @return {数组的下标}          
+   */
+  sortedIndexBy: function(arr, value, iteratee) {
+    if(typeof iteratee == 'string') {
+      var key = iteratee
+      iteratee = function(obj) {
+        return obj[key]
+      }
+    }
+    for(var i = 0; i < arr.length; i++) {
+      if(iteratee(value) === iteratee(arr[i])) {
+        return i
+      }
+    }
+  },
+  /**
+   * 返回数组中和value第一个相等的元素的下标
+   * @param  {遍历的数组} arr   
+   * @param  {比较的值} value 
+   * @return {数组的下标}       
+   */
+  sortedIndexOf: function(arr, value) {
+    for(var i = 0; i < arr.length; i++) {
+      if(arr[i] === value) {
+        return i
+      }
+    }
+    return -1
+  },
+  /**
+   * 查找值value应该查在十足的哪个位置
+   * @param  {数组} arr   
+   * @param  {数值} value 
+   * @return {数值}       
+   */
+  sortedLastIndex: function(arr,value) {
+    for(var i = arr.length - 1; i >= 0; i--) {
+      if(arr[i] <= value && arr[ i + 1] > value) {
+        return i + 1
+      }
+    }
+  },
+  /**
+   * 基本同sortedLastIndex，只是多了个迭代器
+   * @param  {数组} arr      
+   * @param  {数值} value    
+   * @param  {函数} iteratee 
+   * @return {下标}          
+   */
+  sortedLastIndexBy: function(arr,value,iteratee) {
+    if(typeof iteratee == 'string') {
+      var key = iteratee
+      iteratee = function(obj) {
+        return obj[key]
+      }
+    }
+    for(var i = arr.length - 1; i >= 0; i--) {
+      if(iteratee(arr[i]) <= iteratee(value) && iteratee(arr[i + 1]) > iteratee(value)) {
+        return i + 1
+      }
+    }
+    return -1
+  },
+  /**
+   * 数组从后遍历，找到和value相等的元素的下标
+   * @param  {数组} arr   
+   * @param  {数值} value 
+   * @return {下标}       
+   */
+  sortedLastIndexOf: function(arr,value) {
+    for(var i = arr.length - 1; i >= 0; i--) {
+      if(arr[i] === value) {
+        return i
       }
     }
   },
@@ -1683,9 +1906,9 @@ var WuFang = {
   /**
    * 和after类似，在函数调用n次之前，每次返回函数值，
    * n次之后再调用的话就返回第n次调用的返回的结果
-   * @param  {[type]} n    [description]
-   * @param  {[type]} func [description]
-   * @return {[type]}      [description]
+   * @param  {[type]} n    
+   * @param  {[type]} func 
+   * @return {[type]}      
    */
   before: function(n, func) {
     var counter = 0
@@ -2060,15 +2283,15 @@ var WuFang = {
   values: function(value) {
     var ret = []
     var obj = {}
-    if(value instanceof String) {     
-      for(var i = 0; i < value.length; i++) {
+    if (value instanceof String) {
+      for (var i = 0; i < value.length; i++) {
         obj[i] = value[i]
       }
     } else {
       obj = value
     }
-    for(var key in obj) {
-      if(obj.hasOwnProperty(key)) {
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
         ret.push(obj[key])
       }
     }
@@ -2086,16 +2309,17 @@ var WuFang = {
   memoize: function(fn, resolver) {
     resolver = resolver || (it => it)
     var cache = new Map()
+
     function memoized(...args) {
       var key = resolver(...args)
-      if(cache.has(key)) {
+      if (cache.has(key)) {
         return cache.get(key)
       } else {
         return cache.set(key, fn(...args)).get(key)
       }
-    }  
+    }
     memoized.cache = cache
-    return memoized  
+    return memoized
   },
   /**
    * 判断参数是不是布尔值
@@ -2103,7 +2327,7 @@ var WuFang = {
    * @return {Boolean}     
    */
   isBoolean: function(value) {
-    if(typeof value === 'boolean') {
+    if (typeof value === 'boolean') {
       return true
     } else {
       return false
@@ -2115,7 +2339,7 @@ var WuFang = {
    * @return {Boolean}      
    */
   isDate: function(value) {
-    if(value instanceof Date) {
+    if (value instanceof Date) {
       return true
     } else {
       return false
@@ -2127,7 +2351,7 @@ var WuFang = {
    * @return {Boolean}  
    */
   isElement: function(value) {
-    if(value.nodeType != undefined) {
+    if (value.nodeType != undefined) {
       return true
     } else {
       return false
@@ -2139,8 +2363,8 @@ var WuFang = {
    * @return 返回布尔值
    */
   isError: function(value) {
-    if(value instanceof Error){
-      return true 
+    if (value instanceof Error) {
+      return true
     } else {
       return false
     }
@@ -2151,7 +2375,7 @@ var WuFang = {
    * @return {Boolean}      
    */
   isFinite: function(value) {
-    if(typeof value === 'number' && value !== Infinity && value !== -Infinity) {
+    if (typeof value === 'number' && value !== Infinity && value !== -Infinity) {
       return true
     } else {
       return false
@@ -2160,10 +2384,10 @@ var WuFang = {
   /**
    * 判断参数是不是一个函数
    * @param  {要判断的值} 
-   * @return {Boolean}       [description]
+   * @return {Boolean}       
    */
   isFunction: function(value) {
-    if(typeof value === 'function') {
+    if (typeof value === 'function') {
       return true
     } else {
       return false
@@ -2175,13 +2399,27 @@ var WuFang = {
    * @param  {被比较的对象} 
    * @return {Boolean}       
    */
-  isMatch: function(obj,source) {
-    for(var key in source) {
-      if(obj[key] != source[key]) {
+  isMatch: function(obj, source) {
+    for (var key in source) {
+      if (obj[key] != source[key]) {
         return false
       }
     }
     return true
+  },
+
+  throttle: function(fn, waitTime, options) {
+
+    return function(...args) {
+      if(options.leading == true && options.trailing == true) {
+        
+      }
+      if (Date.now() - lastTime > waitTime) {
+        console.log(Date.now() - lastTime)
+        fn(...args)
+        lastTime = Date.now()
+      }
+    }
   },
   // matches: function(source) {
   //   return function() {
@@ -2191,9 +2429,9 @@ var WuFang = {
 
 }
 
-
-console.log(WuFang.isElement('abs'))
-
-// object.a = 2
-// console.log(a(object))
-  // console.log(WuFang.parseJson('[[1],[2]]'))
+var users = [
+  { 'user': 'barney',  'active': false },
+  { 'user': 'fred',    'active': false},
+  { 'user': 'pebbles', 'active': true }
+];
+console.log(WuFang.unionBy([{ 'x': 1 }], [{ 'x': 2 }, { 'x': 1 }], 'x'))
