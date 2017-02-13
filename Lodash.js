@@ -342,8 +342,7 @@ var WuFang = {
     var ret = []
     for (var i = 0; i < arr.length - 1; i++) {
       ret.push(arr[i])
-    }
-    return ret
+    }    return ret
   },
   /**
    * 将数组连接成字符串，且中间是以某个符号连接的
@@ -1688,15 +1687,6 @@ var WuFang = {
     }
     return retStr
   },
-  // parseInt: function(str, value) {
-  // if ((value == undefined || value == 0) && (str[0] != "0" && str[1] != "x")) {
-  //   value = 10
-  // }
-  // if (str[0] == "0" && str[1] == "x") {
-  //   value = 16
-  // }
-  //   return Number(str)
-  // },
   /**
    * 将给定字符串重复N次
    * @param  str是要重复的字符串
@@ -1813,14 +1803,6 @@ var WuFang = {
     }
     return arr
   },
-  // forIn: function(obj, iteratee) {
-  //   for (var key in obj) {
-  //     if (!iteratee(obj[key], key, obj)) {
-  //       return obj
-  //     }
-  //   }
-  //   return obj
-  // },
   /**
    * 创建一个对象，对象的值与object相同，并且其属性是通过函数运行产生的新的属性
    * @param  {要遍历的对象}
@@ -2055,6 +2037,22 @@ var WuFang = {
       }
     }
     return obj
+  },
+  /**
+   * 让函数每次建个一定时间执行一次，作用是减小函数执行的频率
+   * @param  {Function}     
+   * @param  {Number}  
+   * @return {Boolean}       
+   */
+  throttle: function(fn, waitTime, options) {
+    return function(...args) {
+      if(options.leading == true && options.trailing == true) {       
+      }
+      if (Date.now() - lastTime > waitTime) {
+        fn(...args)
+        lastTime = Date.now()
+      }
+    }
   },
   /**
    * 解析JSON文件
@@ -2351,7 +2349,7 @@ var WuFang = {
    * @return {Boolean}  
    */
   isElement: function(value) {
-    if (value.nodeType != undefined) {
+    if (value.nodeType != undefined || !value.nodeType) {
       return true
     } else {
       return false
@@ -2407,31 +2405,4 @@ var WuFang = {
     }
     return true
   },
-
-  throttle: function(fn, waitTime, options) {
-
-    return function(...args) {
-      if(options.leading == true && options.trailing == true) {
-        
-      }
-      if (Date.now() - lastTime > waitTime) {
-        console.log(Date.now() - lastTime)
-        fn(...args)
-        lastTime = Date.now()
-      }
-    }
-  },
-  // matches: function(source) {
-  //   return function() {
-
-  //   }
-  // },
-
 }
-
-var users = [
-  { 'user': 'barney',  'active': false },
-  { 'user': 'fred',    'active': false},
-  { 'user': 'pebbles', 'active': true }
-];
-console.log(WuFang.unionBy([{ 'x': 1 }], [{ 'x': 2 }, { 'x': 1 }], 'x'))
