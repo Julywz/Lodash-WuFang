@@ -5,7 +5,6 @@
     if((str.slice(str.length - 1) === '=') && (str.slice(str.length - 2) != '==')) {
       str = str.slice(0,str.length - 1)
     }
-    console.log(str)
     return str.split('').map(it=>data[it].toString(2)).map(function(it) {
       var l = 6 - it.length 
       for(var i = 1; i <= l; i++) {
